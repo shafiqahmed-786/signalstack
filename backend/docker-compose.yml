@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: klypup_postgres
+    environment:
+      POSTGRES_USER: klypup
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: klypup_research
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U klypup -d klypup_research"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: klypup_backend
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --reload-dir app
+      --log-level debug
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount source for hot-reload in development
+      - .:/app
+    environment:
+      DATABASE_URL: postgresql+asyncpg://klypup:password@postgres:5432/klypup_research
+      DEBUG: "true"
+      ENVIRONMENT: development
+      # Set remaining vars via .env or override here
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  postgres_data:
+    driver: local

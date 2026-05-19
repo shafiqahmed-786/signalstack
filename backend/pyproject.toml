@@ -1,0 +1,90 @@
+[project]
+name = "signalstack-research-backend"
+version = "0.2.0"
+description = "SignalStack AI Investment Research Dashboard — Backend API"
+requires-python = ">=3.11"
+dependencies = [
+    # ── Web framework ─────────────────────────────────────────
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "python-multipart>=0.0.12",
+    "orjson>=3.10.0",
+
+    # ── Database ──────────────────────────────────────────────
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "alembic>=1.14.0",
+
+    # ── Config / validation ───────────────────────────────────
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+
+    # ── Auth ──────────────────────────────────────────────────
+    "PyJWT>=2.10.0",
+    "cryptography>=43.0.0",
+
+    # ── AI / LLM ─────────────────────────────────────────────
+    "anthropic>=0.40.0",
+    "tiktoken>=0.8.0",
+
+    # ── Vector DB ─────────────────────────────────────────────
+    "chromadb>=0.5.0",
+    "sentence-transformers>=3.3.0",
+
+    # ── Market data ───────────────────────────────────────────
+    "yfinance>=0.2.50",
+
+    # ── News ─────────────────────────────────────────────────
+    "newsapi-python>=0.2.7",
+
+    # ── Sentiment ─────────────────────────────────────────────
+    "vaderSentiment>=3.3.2",
+
+    # ── HTTP client ───────────────────────────────────────────
+    "httpx>=0.28.0",
+
+    # ── Templating (prompts) ──────────────────────────────────
+    "jinja2>=3.1.0",
+
+    # ── Security / sanitization ───────────────────────────────
+    "bleach>=6.2.0",
+
+    # ── Logging ───────────────────────────────────────────────
+    "structlog>=24.4.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.14.0",
+    "respx>=0.21.0",       # httpx mocking
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "UP", "B", "C4", "PTH"]
+ignore = ["B008"]  # FastAPI Depends() in function defaults
+
+[tool.ruff.isort]
+known-first-party = ["app"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

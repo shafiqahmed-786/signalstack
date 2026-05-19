@@ -1,0 +1,1 @@
+"""AI layer: prompts, clients, and structured output contracts."""
